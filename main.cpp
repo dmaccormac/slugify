@@ -1,42 +1,26 @@
-#include <fstream>
+#include <algorithm>
 #include <iostream>
+#include <regex>
+#include <string>
 using namespace std;
 
-// slugify a string:
-// 1. replace whitespaces with '-'
-// 2. remove non alphanumeric chars
-// 3. convert uppercase chars to lower
 string slugify(string input) {
+    transform(input.begin(), input.end(), input.begin(), ::tolower);
 
-    for (auto &ch : input) {
-        if (ch == ' ')
-            ch = '-';
+    replace(input.begin(), input.end(), ' ', '-');
 
-        else if (!isalnum(ch))
-            ch = '\0';
-
-        else if (isupper(ch))
-            ch = tolower(ch);
-    }
+    regex pattern("[^a-z0-9-]");
+    input = regex_replace(input, pattern, "");
 
     return input;
 }
 int main(int argc, char **argv) {
 
-    if (argc < 2)
-        cout << "USAGE: " << argv[0] << " <FILE ...>" << endl;
+    if (argc == 1)
+        cout << "Usage: " << argv[0] << " <string ...>" << endl;
 
-    int file_count = argc - 1;
+    for (int i = 1; i < argc; i++)
+        cout << slugify(argv[i]) << endl;
 
-    for (int i = 1; i <= file_count; i++) {
-        ifstream file(argv[i]);
-        string line;
-        int line_count = 0;
-        while (getline(file, line))
-            cout << std::setfill('0') << std::setw(2) << ++line_count << "-"
-                 << slugify(line) << endl;
-
-        file.close();
-    }
     return 0;
 }
